@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HostelHub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#1e1e2e;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px}
+.phone{width:100%;max-width:390px;height:94vh;max-height:800px;background:#f3f4f6;border:7px solid #111;border-radius:30px;overflow:hidden;display:flex;flex-direction:column}
+.header{background:#4f46e5;color:white;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.header button{background:white;color:#4f46e5;border:0;border-radius:6px;padding:7px}
+.content{flex:1;overflow-y:auto;padding:15px;display:none}
+.content.active{display:block}
+.card{background:white;border-radius:12px;padding:15px;margin:0 0 12px;box-shadow:0 2px 6px #0001}
+.title{font-size:13px;font-weight:bold;color:#6b7280;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed #ddd;font-size:12px}
+.row:last-child{border:0}
+label{display:block;font-size:13px;margin-top:10px}
+input,select,textarea{width:100%;padding:11px;margin:6px 0 10px;border:1px solid #ddd;border-radius:7px;background:white}
+.btn{width:100%;padding:11px;background:#4f46e5;color:white;border:0;border-radius:7px;font-weight:bold;cursor:pointer}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quick button{background:white;border:1px solid #ddd;padding:15px 5px;border-radius:10px}
+.nav{background:white;display:flex;justify-content:space-around;padding:10px 2px;border-top:1px solid #ddd}
+.nav button{border:0;background:transparent;color:#6b7280;font-size:11px}
+.nav button span{display:block;font-size:20px;margin-bottom:4px}
+.nav button.active{color:#4f46e5;font-weight:bold}
+.badge{background:#d1fae5;color:#065f46;padding:4px 7px;border-radius:10px;font-size:10px}
+#loginScreen{flex:1;overflow-y:auto;padding:22px 18px;display:flex;flex-direction:column;justify-content:center}
+#loginScreen h1{text-align:center;color:#4f46e5;margin-bottom:5px}
+#loginScreen .logo{text-align:center;font-size:48px;margin-bottom:8px}
+#message{color:#dc2626;font-size:12px;margin:8px 0}
+.small{text-align:center;color:#6b7280;font-size:12px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="logo">🏠</div>
+  <h1>HostelHub</h1>
+  <p style="text-align:center;color:#6b7280;margin-bottom:22px">Smart Hostel Management</p>
+
+  <div class="card">
+    <h3 style="text-align:center;margin-bottom:12px">Welcome Back!</h3>
+    <label>Login As</label>
+    <select id="role" onchange="updateRole()">
+      <option value="student">🎓 Student</option>
+      <option value="warden">👨‍💼 Warden</option>
+    </select>
+    <label id="idLabel">Student ID</label>
+    <input id="userId" placeholder="Enter Student ID" autocomplete="username">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Enter password" autocomplete="current-password">
+    <button class="btn" onclick="login()">Login →</button>
+    <p id="message"></p>
+  </div>
+  <p class="small">Student and Warden Portal</p>
+</div>
+
+<!-- APP -->
+<div id="appShell" style="display:none;flex:1;min-height:0;flex-direction:column">
+  <div class="header">
+    <h2>🏠 HostelHub</h2>
+    <button onclick="logout()">Logout ↗</button>
+  </div>
+
+  <!-- HOME -->
+  <section id="home" class="content">
+    <h3>Welcome, Student! 👋</h3>
+    <p style="font-size:12px;color:#6b7280;margin:6px 0 15px">Block B · Room 204</p>
+    <div class="card">
+      <div class="title">⏰ GATE TIMINGS</div>
+      <div class="row"><span>Opening</span><b>06:00 AM</b></div>
+      <div class="row"><span>Closing</span><b>09:30 PM</b></div>
+    </div>
+    <div class="card">
+      <div class="title">📢 ANNOUNCEMENT</div>
+      <p style="font-size:13px">Water maintenance work tomorrow from 10 AM to 1 PM.</p>
+    </div>
+    <div class="card">
+      <div class="title">🍱 TODAY'S MENU</div>
+      <div class="row"><span>Breakfast</span><span>Idli, Sambar, Tea</span></div>
+      <div class="row"><span>Lunch</span><span>Rice, Paneer, Dal</span></div>
+      <div class="row"><span>Dinner</span><span>Chapati, Veg Curry</span></div>
+      <button class="btn" style="margin-top:10px" onclick="showPage('menu')">View Weekly Menu</button>
+    </div>
+    <div class="quick">
+      <button onclick="showPage('complaints')">📝<br>Complaints</button>
+      <button onclick="alert('Contact your hostel warden for contact details.')">📞<br>Warden Contact</button>
+      <button onclick="alert('For emergencies in India, call 112.')">🚨<br>Emergency</button>
+      <button onclick="alert('Please contact the hostel office for fee details.')">💳<br>Fee Details</button>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu" class="content">
+    <h3 style="margin-bottom:12px">🍱 Weekly Food Menu</h3>
+    <div id="weeklyMenu"></div>
+  </section>
+
+  <!-- COMPLAINTS -->
+  <section id="complaints" class="content">
+    <h3 style="margin-bottom:12px">📝 Complaints</h3>
+    <div class="card">
+      <div class="title">EXAMPLE TICKET #HH-8921</div>
+      <p style="font-size:13px">Leaking tap · Room 204</p>
+      <p style="margin-top:8px"><span class="badge">Pending</span></p>
+    </div>
+    <div class="card">
+      <h4>Submit New Complaint</h4>
+      <label>Category</label>
+      <select id="category">
+        <option>Plumbing & Water</option>
+        <option>Electrical / Lighting</option>
+        <option>Mess / Food Quality</option>
+        <option>Wi-Fi & Network</option>
+        <option>Other</option>
+      </select>
+      <label>Description</label>
+      <textarea id="description" rows="4" placeholder="Describe your issue"></textarea>
+      <button class="btn" onclick="submitComplaint()">Submit Complaint</button>
+      <p id="complaintMessage" style="font-size:12px;margin-top:10px"></p>
+    </div>
+    <div id="myComplaints"></div>
+  </section>
+
+  <!-- WARDEN DASHBOARD -->
+  <section id="admin" class="content">
+    <h3>👨‍💼 Warden Dashboard</h3>
+    <p style="font-size:12px;color:#6b7280;margin:6px 0 15px">Administration Portal</p>
+    <div class="card">
+      <div class="title">📊 SUMMARY</div>
+      <div class="row"><span>Students</span><b>420</b></div>
+      <div class="row"><span>Sample Complaints</span><b id="issueCount">1</b></div>
+    </div>
+    <div class="card">
+      <h4 style="margin-bottom:12px">📢 Post Announcement</h4>
+      <textarea id="announcementInput" rows="3" placeholder="Write an announcement"></textarea>
+      <button class="btn" onclick="postAnnouncement()">Publish Announcement</button>
+      <p id="announcementMessage" style="font-size:12px;margin-top:8px"></p>
+    </div>
+    <div class="card">
+      <h4 style="margin-bottom:12px">🍱 Update Food Menu</h4>
+      <label>Day</label>
+      <select id="menuDay">
+        <option>Monday</option><option>Tuesday</option>
+        <option>Wednesday</option><option>Thursday</option>
+        <option>Friday</option><option>Saturday</option><option>Sunday</option>
+      </select>
+      <label>Breakfast</label><input id="breakfast" placeholder="Breakfast items">
+      <label>Lunch</label><input id="lunch" placeholder="Lunch items">
+      <label>Dinner</label><input id="dinner" placeholder="Dinner items">
+      <button class="btn" onclick="updateMenu()">Save Menu</button>
+      <p id="menuMessage" style="font-size:12px;margin-top:8px"></p>
+    </div>
+    <div class="card">
+      <h4 style="margin-bottom:12px">🛠️ Student Complaints</h4>
+      <div id="adminComplaints"><p style="font-size:12px">No new complaints.</p></div>
+    </div>
+  </section>
+
+  <!-- NAV -->
+  <nav class="nav" id="studentNav">
+    <button id="nav-home" onclick="showPage('home')"><span>🏠</span>Home</button>
+    <button id="nav-menu" onclick="showPage('menu')"><span>🍱</span>Menu</button>
+    <button id="nav-complaints" onclick="showPage('complaints')"><span>📝</span>Complaints</button>
+  </nav>
+  <nav class="nav" id="wardenNav" style="display:none">
+    <button id="nav-admin" onclick="showPage('admin')"><span>👨‍💼</span>Dashboard</button>
+  </nav>
+</div>
+</div>
+
+<script>
+const defaultMenus = {
+  Monday:["Dosa, Sambar, Tea","Rice, Chicken Curry","Chapati, Vegetable Curry"],
+  Tuesday:["Idli, Sambar","Rice, Fish Curry","Fried Rice, Egg"],
+  Wednesday:["Puttu, Kadala Curry","Rice, Sambar, Thoran","Chapati, Chicken Curry"],
+  Thursday:["Appam, Egg Curry","Rice, Vegetable Curry","Parotta, Curry"],
+  Friday:["Idli, Sambar, Tea","Rice, Paneer Masala, Dal","Chapati, Mix Veg, Kheer"],
+  Saturday:["Bread, Egg, Tea","Rice, Chicken Curry","Noodles, Egg"],
+  Sunday:["Poori, Masala","Special Meals","Fried Rice, Chicken"]
+};
+let menus = JSON.parse(JSON.stringify(defaultMenus));
+let complaints = [];
+let currentRole = "";
+
+function updateRole(){
+  const role = document.getElementById("role").value;
+  document.getElementById("idLabel").textContent =
+    role === "student" ? "Student ID" : "Warden ID";
+  document.getElementById("userId").placeholder =
+    role === "student" ? "Enter Student ID" : "Enter Warden ID";
+  document.getElementById("message").textContent = "";
+}
+
+function login(){
+  const role = document.getElementById("role").value;
+  const id = document.getElementById("userId").value.trim();
+  const pass = document.getElementById("password").value;
+
+  const valid = role === "student"
+    ? id === "11230" && pass === "student123"
+    : id === "54300" && pass === "warden123";
+
+  if(!valid){
+    document.getElementById("message").textContent =
+      "Invalid ID or password. Check the demo credentials below.";
+    return;
+  }
+
+  currentRole = role;
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("appShell").style.display = "flex";
+  document.getElementById("studentNav").style.display =
+    role === "student" ? "flex" : "none";
+  document.getElementById("wardenNav").style.display =
+    role === "warden" ? "flex" : "none";
+
+  showPage(role === "student" ? "home" : "admin");
+  renderMenu();
+}
+
+function logout(){
+  currentRole = "";
+  document.getElementById("appShell").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("userId").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("message").textContent = "";
+  document.getElementById("role").value = "student";
+  updateRole();
+}
+
+function showPage(page){
+  if(currentRole === "student" && page === "admin"){
+    alert("Warden login required.");
+    return;
+  }
+  if(currentRole === "warden" && page !== "admin"){
+    alert("Please use the Warden Dashboard.");
+    return;
+  }
+
+  document.querySelectorAll(".content").forEach(s => s.classList.remove("active"));
+  document.getElementById(page).classList.add("active");
+
+  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+  const nav = document.getElementById("nav-" + page);
+  if(nav) nav.classList.add("active");
+}
+
+function renderMenu(){
+  const host = document.getElementById("weeklyMenu");
+  host.innerHTML = "";
+  Object.entries(menus).forEach(([day, items]) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    const title = document.createElement("div");
+    title.className = "title";
+    title.textContent = day.toUpperCase();
+    card.appendChild(title);
+    ["Breakfast","Lunch","Dinner"].forEach((meal,i) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      const label = document.createElement("span");
+      label.textContent = meal;
+      const value = document.createElement("span");
+      value.textContent = items[i];
+      row.append(label,value);
+      card.appendChild(row);
+    });
+    host.appendChild(card);
+  });
+}
+
+function updateMenu(){
+  const day = document.getElementById("menuDay").value;
+  const items = [
+    document.getElementById("breakfast").value.trim(),
+    document.getElementById("lunch").value.trim(),
+    document.getElementById("dinner").value.trim()
+  ];
+  if(items.some(v => !v)){
+    document.getElementById("menuMessage").textContent =
+      "Please fill in all three meals.";
+    return;
+  }
+  menus[day] = items;
+  renderMenu();
+  document.getElementById("menuMessage").textContent =
+    day + " menu updated for this demo session.";
+}
+
+function submitComplaint(){
+  const category = document.getElementById("category").value;
+  const description = document.getElementById("description").value.trim();
+  if(!description){
+    document.getElementById("complaintMessage").textContent =
+      "Please describe your complaint.";
+    return;
+  }
+  complaints.push({category,description,status:"Pending",id:Date.now()});
+  document.getElementById("description").value = "";
+  document.getElementById("complaintMessage").textContent =
+    "Complaint added to this demo session.";
+  renderComplaints();
+}
+
+function renderComplaints(){
+  const mine = document.getElementById("myComplaints");
+  const admin = document.getElementById("adminComplaints");
+  mine.replaceChildren();
+  admin.replaceChildren();
+
+  document.getElementById("issueCount").textContent =
+    complaints.filter(c => c.status === "Pending").length + 1;
+
+  if(complaints.length === 0){
+    admin.textContent = "No new complaints.";
+    return;
+  }
+
+  complaints.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "card";
+    const title = document.createElement("b");
+    title.textContent = c.category;
+    const desc = document.createElement("p");
+    desc.style.cssText = "font-size:13px;margin:8px 0";
+    desc.textContent = c.description;
+    const status = document.createElement("p");
+    status.style.cssText = "font-size:12px;margin-bottom:8px";
+    status.textContent = "Status: " + c.status;
+    card.append(title,desc,status);
+    mine.appendChild(card);
+
+    const adminCard = card.cloneNode(true);
+    if(c.status === "Pending"){
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = "Mark Resolved";
+      btn.onclick = () => {
+        c.status = "Resolved";
+        renderComplaints();
+      };
+      adminCard.appendChild(btn);
+    }
+    admin.appendChild(adminCard);
+  });
+}
+
+function postAnnouncement(){
+  const value = document.getElementById("announcementInput").value.trim();
+  if(!value){
+    document.getElementById("announcementMessage").textContent =
+      "Please enter an announcement.";
+    return;
+  }
+  document.querySelector("#home .card:nth-of-type(2) p").textContent = value;
+  document.getElementById("announcementInput").value = "";
+  document.getElementById("announcementMessage").textContent =
+    "Announcement updated for this demo session.";
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
